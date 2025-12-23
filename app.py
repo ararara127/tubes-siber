@@ -8,6 +8,9 @@ app.secret_key = 'secret123'   # DITAMBAHKAN untuk mengaktifkan session
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+from flask_wtf import CSRFProtect  # DITAMBAHKAN
+csrf = CSRFProtect(app)            # DITAMBAHKAN
+
 
 class User(db.Model):                # DITAMBAHKAN
     id = db.Column(db.Integer, primary_key=True)
@@ -110,13 +113,21 @@ def add_student():
     #     {'name': name, 'age': age, 'grade': grade}
     # )
     # db.session.commit()
-    query = f"INSERT INTO student (name, age, grade) VALUES ('{name}', {age}, '{grade}')"
-    cursor.execute(query)
+    # Sebelum:
+    #query = f"INSERT INTO student (name, age, grade) VALUES ('{name}', {age}, '{grade}')"
+    #cursor.execute(query)
+
+    db.session.execute(                         # DITAMBAHKAN
+     text("INSERT INTO student (name, age, grade) VALUES (:name, :age, :grade)"),
+     {'name': name, 'age': age, 'grade': grade}
+ )
+    db.session.commit()
     connection.commit()
     connection.close()
     return redirect(url_for('index'))
 
-@app.route('/delete/<string:id>') 
+@app.route('/delete/<int:id>', methods=['POST']) # DIUBAH: GET -> POST
+ 
 def delete_student(id):
     if 'logged_in' not in session:                 # DITAMBAHKAN
         return redirect(url_for('login'))

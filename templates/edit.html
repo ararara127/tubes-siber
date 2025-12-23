@@ -9,6 +9,7 @@
     <div class="container mt-5">
         <h1>Edit Student</h1>
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- DITAMBAHKAN -->
             <input type="text" name="name" value="{{ student.name }}" required>
             <input type="number" name="age" value="{{ student.age }}" required>
             <input type="text" name="grade" value="{{ student.grade }}" required>
